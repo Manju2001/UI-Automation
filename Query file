@@ -1,0 +1,186 @@
+def get_summary(description, transaction_type) :
+    summary = ""
+    if description.__contains__( "WFP-00231 The person could not be found with the specified ID") : summary =  "Cascade Error, Root cause to be resolved, Related to Above Errors"
+    elif description.__contains__("WFP-00542 Changes within the primary account occurs within the off-limits period") : summary =  "Typically related to the FUT interface, the usual cause of the error is that the primary account record set in Kronos do not match those provided in the source file"
+    elif description.__contains__("WFP-00544 Changes within the rule set assignment occur within the off-limits period") : summary =  "Attempt to change hire date for a colleague who has already been signed off (OR) Reverse Termination attempted with status active prior to last termination date"
+    elif description.__contains__("WFP-00563 The badge number already exists within the system") : summary =  "Multiple instances of the same colleague exist in Kronos one with a legacy ID, one with an HCM ID - will need resolving"
+    elif description.__contains__("WFP-00610 Changes within the personal overtime assignment occurs within the off-limits period") : summary =  "Typically this will be a cascade error, in that it will be an error generated because of another root error cause (OR) Can occur when an attempt has been made to process rehire event for colleague who has already been rehired (OR) Multiple records sent for single colleague in source file, this is not permitted for CDI"
+    elif description.__contains__("WFP-00694 Changes within the person status occur within the off-limits period") : summary =  "Multiple records for the same colleague in the same source file - not permitted by CDI (OR) Source data hire / Assignment date earlier than actual hire in Kronos (OR) Termimation record sent as a pair with a rehire (OR) Colleague rehired / reactivated but records being sent with original hire date and status dates attached"
+    elif description.__contains__("WFP-00753 The data was modified by another user while you were working on this page. Your edits can not be saved. Please refresh your data and try again.") : summary =  "Other user in Person record making edits at the time the updates were made."
+    elif description.__contains__("WFP-00944 The action required an existing person, but either the person for the key could not be found, the user does not have access rights to that person, or a database error occurred - Key:") : summary =  "This can be a cascade error, in that it will be an error generated because of another root error cause (usually a new hire failing to be processed) -OR- Multiple (cancel work relationship) records sent for same collegue - second record was not processed as the colleague did not exist (already deleted)"
+    elif description in ["WFP-01094 A property value is required, but was not specified - Property: PersonData.",
+                         "WFP-01094 A property value is required, but was not specified - Property: PersonInformationData."] : summary =  "Cascade - Related to Above Error."
+    elif description.__contains__("WFP-01270 The information in the bean is not valid.  Detailed errors should be wrapped within this exception.WFP-01392 A bad combination of properties and values was specified - Property 1: EffectiveDate") : summary =  "Hire Date Issue."
+    elif description.__contains__("WFP-01270 The information in the bean is not valid.  Detailed errors should be wrapped within this exception.WFP-00987 The property is required to have a value, but a value for the property was not found - Property: USERNAME") : summary =  "USERNAME Issue."
+    elif description in ["WFP-01573 Schedule overrides for Minimum hours per week that the employee can be scheduled overlap. Please enter the correct dates.",
+                         "WFP-01570 Schedule override for Minimum hours per week that the employee can be scheduled   has expiration date before its effective date. Please enter the correct dates.",
+                         "WFP-00797 Invalid effective and expiration date range.",
+                         "WFP-01573 Schedule overrides for Maximum hours per week that the employee can be scheduled overlap. Please enter the correct dates."] : summary =  "Scheduler Issue."
+    elif description.__contains__("WTK-01747 The operation is forbidden because the employee") : summary =  "Scheduler Issue due to above errors."
+    elif description.__contains__(" 20008 ;  WFP-00556 The user account name already exists within the system ") : summary =  "Wrong User Name on existing colleague"
+    elif description.__contains__("WFP-00231 The person could not be found with the specified") : summary =  "Colleague Failed before"
+    elif description.__contains__("WFP-01270 The information in the bean is not valid.  Detailed errors should be wrapped within this exception.WFP-00944 The action required an existing person, but either the person for the key could not be found, the user does not have access rights to that person, or a database error occurred") : summary =  "Typically this will be a cascade error, in that it will be an error generated because of another root error cause."
+    elif description.__contains__("WFP-01070 The field value has detected a reserved character.") : summary =  "Invalid character in colleague, to be updated in HCM."
+    elif description.__contains__("WFP-01147 The value for the property is not valid - Name: OrganizationPath") and description.__contains__("The job does not exist, the user does not have access to the job, or the job is not available on the specified date") : summary =  "The job assigned to this colleague is a Management job but the department provided is not Management. (OR) This location is Convenience and as such the department will default to """"""""""""""""""""""""""""""""Store"""""""""""""""""""""""""""""""" in CDI. However in Kronos the job does not exist under the Store department in this location(No Valid Department tagged for Supermarket) -OR- Job provided has location number in the name, in this case: 4030 job name. (OR) Department provided is incorrect, in this case its location name + store. (OR) Travel Money Job not configured in Kronos at that time (OR) Travel Money record not configured properly in myHR (OR) No store type provided in source file (OR) There has been no job provided in the source file - see job path and missing final entry"
+    elif description.__contains__("WFP-01147 The value for the property is not valid - Name: SupervisorPersonNumber") : summary =  "Colleague assigned as Supervisor does not exist in Kronos (OR) Colleague assigned as Supervisor exists in Kronos but does not have a manager license assigned to them (OR) Colleague assigned as Supervisor exists in Kronos but is Terminated."
+    elif description.__contains__("WFP-01147 The value for the property is not valid - Name: PayRuleName") : summary =  "No grade field provided in source file from HCM"
+    elif description.__contains__("WFP-77605 A change in the person's AccrualProfile assignment") : summary =  "Multiple records sent from HCM including Terminations with no leaving reason. (OR) Change record sent with original hire date for terminated colleague. (OR) NEW HIRE record sent for colleague that is Terminated in Kronos."
+    elif description.__contains__("WFP-01577 Cannot assign a generic data access profile to an employee without a manager license:") : summary =  "Colleague not having a Manager License."
+    elif description.__contains__("Schedule Rule Override") : summary =  "Scheduler Error"
+    elif description.__contains__("WFP-01270 The information in the bean is not valid.  Detailed errors should be wrapped within this exception.WFP-00773 The employee does not have Workforce Scheduler license to do this operation - name") and transaction_type.__contains__("RuleSetEmployeeAssign") : summary =  "Cascade Error Related to Above"
+    elif description.__contains__("The employee submitted for processing has no license") and transaction_type.__contains__( "WATPointBalanceReset") : summary =  "Cascade Error Related to Above."
+    elif description.__contains__("WFP-01280 This field does not allow a null value.    Field Name: User Name.") : summary =  "Change record sent for existing user who did not have user name set - interface base assumption is that all existing colleague will have a user name set (user name is not sent for change events)"
+    elif transaction_type.__contains__( "PersonCertificationAssign") : summary =  "-"
+    elif description.__contains__("WFP-00566 The hire date occurs before the birth date") : summary =  "Hired date should be corrected"
+    elif description.__contains__("WFP-00701 The birth date occurs today or after today's date") : summary =  "Birth date should be corrected"
+    elif description.__contains__("WFP-01270 The information in the bean is not valid.  Detailed errors should be wrapped within this exception.WFP-89781 The person's Hire Date cannot be greater than Employment Term Start Date") : summary =  "Check status of Hire date and Start date"
+    elif description.__contains__("WFP-01270 The information in the bean is not valid.  Detailed errors should be wrapped within this exception.WFP-01147 The value for the property is not valid - Name: AccessProfileName") and description.__contains__("WFP-01147 The value for the property is not valid") : summary =  "Invalid access profile"
+    elif description.__contains__("WFP-01270 The information in the bean is not valid.  Detailed errors should be wrapped within this exception.WFP-01147 The value for the property is not valid - Name: ForecastMapProfile") : summary =  "The colleague store type must be provided"
+    elif description.__contains__("WFP-01270 The information in the bean is not valid.  Detailed errors should be wrapped within this exception.WFP-00336 The job does not exist, the user does not have access to the job, or the job is not available on the specified date") : summary =  "The job does not exist, the user does not have access to the job, or the job is not available on the specified date"
+    elif description.__contains__("WFP-01270 The information in the bean is not valid.  Detailed errors should be wrapped within this exception.WFP-01147 The value for the property is not valid - Name: ProfessionalTransferOrganizationSetName") : summary =  "The value for the property is not valid - Name: ProfessionalTransferOrganizationSetName"
+    elif description.__contains__("WFP-01270 The information in the bean is not valid.  Detailed errors should be wrapped within this exception.WFP-00941 The field string value is too long.") : summary =  "The field string value is too long"
+    elif description.__contains__("WFP-01270 The information in the bean is not valid.  Detailed errors should be wrapped within this exception.WFP-01109 The action required a person who is a manager, but the person with ") : summary =  "Does not have a Workforce Manager license."
+    elif description.__contains__("The employee submitted for processing has no license"): summary = "Colleague not having a License"
+    elif description.__contains__("WFP-01094 A property value is required, but was not specified - Property: PersonLicenseTypes"): summary = "A property value is required, but was not specified - Property: PersonLicenseTypes"
+    elif description.__contains__("WFP-00656 The ID already exists within the system - ID: CWR"): summary = "CWR"
+    elif description.__contains__("WTK-05157 The start date does not fall within the date range of any version of this Employment Term."): summary = "Start date out of range"
+    elif description.__contains__("WFP-00371 The person has an active child license without the parent being active as well"): summary = "Parent license not active but child active"
+    elif description.__contains__("WFP-01270 The information in the bean is not valid.  Detailed errors should be wrapped within this exception.WFP-01147 The value for the property is not valid - Name: ManagerAccessSetName"): summary = "The value for the property is not valid - Name: ManagerAccessSetName"
+    else : summary = "Check the error"
+
+    return summary
+
+
+def get_team_and_action(summary) :
+    teams_and_action = ""
+
+    if summary == "Passed" : teams_and_action = "Passed"
+    elif summary == "Employee Group Error" : teams_and_action = "Srv_Integration Account."
+    elif summary.startswith("Cascade Error") : teams_and_action = "Root cause to be resolved by mentioned team."
+    elif summary.startswith("Typically related to the FUT interface, the usual cause of the error") : teams_and_action = "LabourBAU to Review/ Action."
+    elif summary.startswith("Attempt to change hire date for a colleague who has already been signed off (OR) Reverse Termination") : teams_and_action = "LabourBAU to Review/ Action."
+    elif summary.startswith("Multiple instances of the same colleague exist") : teams_and_action = "LabourBAU to Review/ Action."
+    elif summary.startswith("Typically this will be a cascade error, in that it will be an error generated because of another root error cause (OR) Can occur when an attempt has been made to process rehire event for colleague who has already been rehired (OR) Multiple records sent for single colleague in source file, this is not permitted for CDI") : teams_and_action = "LabourBAU to Review/ Action."
+    elif summary.startswith("Multiple records for the same colleague in the same source file - not permitted by CDI") : teams_and_action = "LabourBAU to Review/ Action."
+    elif summary.startswith("Other user in Person record making edits at the time") : teams_and_action = "LabourBAU to amend the record."
+    elif summary.startswith("This can be a cascade error") : teams_and_action = "Root cause to be resolved by mentioned team."
+    elif summary.__contains__( "Cascade - Related to Above Error.") : teams_and_action = "Root cause to be resolved by mentioned team."
+    elif summary.__contains__( "Hire Date Issue.") : teams_and_action = "LabourBAU to carry out the Workaround."
+    elif summary in ["USERNAME Issue.",
+                     "Scheduler Issue.",
+                     "Does not have a Workforce Manager license.",
+                     "Parent license not active but child active"] :
+        teams_and_action = "LabourBAU to action."
+    elif summary == "Scheduler Issue due to above errors." : teams_and_action = "Root cause to be resolved by mentioned team."
+    elif summary == "Wrong User Name on existing colleague" : teams_and_action = "LabourBAU to Amend."
+    elif summary == "Colleague Failed before" : teams_and_action = "Root cause to be resolved by mentioned team."
+    elif summary == "Typically this will be a cascade error, in that it will be an error generated because of another root error cause." : teams_and_action = "Root cause to be resolved by mentioned team."
+    elif summary in ["Invalid character in colleague, to be updated in HCM.",
+                     "Colleague not having a License",
+                     "The job does not exist, the user does not have access to the job, or the job is not available on the specified date",
+                     "The value for the property is not valid - Name: ProfessionalTransferOrganizationSetName",
+                     "A property value is required, but was not specified - Property: PersonLicenseTypes",
+                     "CWR",
+                     "The field string value is too long",
+                     "Start date out of range",
+                     "The value for the property is not valid - Name: ManagerAccessSetName"] :
+        teams_and_action = "HRS to Action."
+    elif summary.startswith("The job assigned to this colleague is a Management job but the department provided is not Management. (OR) This location is Convenience and") : teams_and_action = "HRS to Amend the Colleague record in HCM."
+    elif summary.startswith("Colleague assigned as Supervisor does not exist in Kronos (OR) Colleague assigned as Supervisor exists") : teams_and_action = "HRS to check the Supervisor record of the colleague."
+    elif summary == "No grade field provided in source file from HCM" : teams_and_action = "HRS to amend the Colleague detail."
+    elif summary.startswith("Multiple records sent from HCM including Terminations with no leaving reason. (OR) Change record sent with original hire") : teams_and_action = "LabourBAU to Review & Update."
+    elif summary == "Colleague not having a Manager License." : teams_and_action = "HRS to review."
+    elif summary == "Scheduler Error" : teams_and_action = "LabourBAU to review and Update."
+    elif summary == "Cascade Error Related to Above" : teams_and_action = "Root cause to be resolved by mentioned team."
+    elif summary.startswith("Change record sent for existing user who did not have user name set") : teams_and_action = "LabourBAU to review"
+    elif summary == "-" : teams_and_action = "No Action Required."
+    elif summary == "LabourBAU to Analyze the issue & Update" : teams_and_action = "LabourBAU to review & update."
+    elif summary == "Hired date should be corrected" : teams_and_action = "HRS to take action."
+    elif summary == "Birth date should be corrected" : teams_and_action = "HRS to take action."
+    elif summary == "Check status of Hire date and Start date" : teams_and_action = "LabourBAU to review"
+    elif summary == "Invalid access profile" : teams_and_action = "HRS to review."
+    elif summary == "The colleague store type must be provided" : teams_and_action = "HRS to review."
+    else : teams_and_action = "Review and Assign to HRS or Labour"
+    
+    return teams_and_action
+
+
+
+# = Table.AddColumn(#"Reordered Columns", "Summary",
+#  each if Text.Contains([DESCRIPTION], "WFP-00231 The person could not be found with the specified ID") : summary =  "Cascade Error, Root cause to be resolved, Related to Above Errors"
+#  elif Text.Contains([DESCRIPTION], "WFP-00542 Changes within the primary account occurs within the off-limits period") then "Typically related to the FUT interface, the usual cause of the error is that the primary account record set in Kronos do not match those provided in the source file"
+#  elif Text.Contains([DESCRIPTION], "WFP-00544 Changes within the rule set assignment occur within the off-limits period") then "Attempt to change hire date for a colleague who has already been signed off (OR) Reverse Termination attempted with status active prior to last termination date"
+#  elif Text.Contains([DESCRIPTION], "WFP-00563 The badge number already exists within the system") then "Multiple instances of the same colleague exist in Kronos one with a legacy ID, one with an HCM ID - will need resolving"
+#  elif Text.Contains([DESCRIPTION], "WFP-00610 Changes within the personal overtime assignment occurs within the off-limits period") then "Typically this will be a cascade error, in that it will be an error generated because of another root error cause (OR) Can occur when an attempt has been made to process rehire event for colleague who has already been rehired (OR) Multiple records sent for single colleague in source file, this is not permitted for CDI"
+#  elif Text.Contains([DESCRIPTION], "WFP-00694 Changes within the person status occur within the off-limits period") then "Multiple records for the same colleague in the same source file - not permitted by CDI (OR) Source data hire / Assignment date earlier than actual hire in Kronos (OR) Termimation record sent as a pair with a rehire (OR) Colleague rehired / reactivated but records being sent with original hire date and status dates attached"
+#  elif Text.Contains([DESCRIPTION], "WFP-00753 The data was modified by another user while you were working on this page. Your edits can not be saved. Please refresh your data and try again.") then "Other user in Person record making edits at the time the updates were made."
+#  elif Text.Contains([DESCRIPTION], "WFP-00944 The action required an existing person, but either the person for the key could not be found, the user does not have access rights to that person, or a database error occurred - Key:") then "This can be a cascade error, in that it will be an error generated because of another root error cause (usually a new hire failing to be processed) -OR- Multiple (cancel work relationship) records sent for same collegue - second record was not processed as the colleague did not exist (already deleted)"
+#  elif Text.Contains([DESCRIPTION], "WFP-01094 A property value is required, but was not specified - Property: PersonData.") then "Cascade - Related to Above Error."
+#  elif Text.Contains([DESCRIPTION], "WFP-01094 A property value is required, but was not specified - Property: PersonInformationData.") then "Cascade - Related to Above Error."
+#  elif Text.Contains([DESCRIPTION], "WFP-01270 The information in the bean is not valid.  Detailed errors should be wrapped within this exception.WFP-01392 A bad combination of properties and values was specified - Property 1: EffectiveDate") then "Hire Date Issue."
+#  elif Text.Contains([DESCRIPTION], "WFP-01270 The information in the bean is not valid.  Detailed errors should be wrapped within this exception.WFP-00987 The property is required to have a value, but a value for the property was not found - Property: USERNAME") then "USERNAME Issue."
+#  elif Text.Contains([DESCRIPTION], "WFP-01573 Schedule overrides for Minimum hours per week that the employee can be scheduled overlap. Please enter the correct dates.") then "Scheduler Issue."
+#  elif Text.Contains([DESCRIPTION], "WFP-00797 Invalid effective and expiration date range.") then "Scheduler Issue."
+#  elif Text.Contains([DESCRIPTION], "WTK-01747 The operation is forbidden because the employee") then "Scheduler Issue due to above errors."
+#  elif Text.Contains([DESCRIPTION], " 20008 ;  WFP-00556 The user account name already exists within the system ") then "Wrong User Name on existing colleague"
+#  elif Text.Contains([DESCRIPTION], "WFP-00231 The person could not be found with the specified") then "Colleague Failed before"
+#  elif Text.Contains([DESCRIPTION], "WFP-01270 The information in the bean is not valid.  Detailed errors should be wrapped within this exception.WFP-00944 The action required an existing person, but either the person for the key could not be found, the user does not have access rights to that person, or a database error occurred") then "Typically this will be a cascade error, in that it will be an error generated because of another root error cause."
+#  elif Text.Contains([DESCRIPTION], "WFP-01270 The information in the bean is not valid.  Detailed errors should be wrapped within this exception.WFP-01070 The field value has detected a reserved character.") then "Invalid character in colleague, to be  update in HCM."
+#  elif Text.Contains([DESCRIPTION], "WFP-01270 The information in the bean is not valid.  Detailed errors should be wrapped within this exception.WFP-01147 The value for the property is not valid - Name: OrganizationPath") and Text.Contains([DESCRIPTION], "The job does not exist, the user does not have access to the job, or the job is not available on the specified date") then "The job assigned to this colleague is a Management job but the department provided is not Management. (OR) This location is Convenience and as such the department will default to """"""""""""""""""""""""""""""""Store"""""""""""""""""""""""""""""""" in CDI. However in Kronos the job does not exist under the Store department in this location(No Valid Department tagged for Supermarket) -OR- Job provided has location number in the name, in this case: 4030 job name. (OR) Department provided is incorrect, in this case its location name + store. (OR) Travel Money Job not configured in Kronos at that time (OR) Travel Money record not configured properly in myHR (OR) No store type provided in source file (OR) There has been no job provided in the source file - see job path and missing final entry"
+#  elif Text.Contains([DESCRIPTION], "WFP-01270 The information in the bean is not valid.  Detailed errors should be wrapped within this exception.WFP-01147 The value for the property is not valid - Name: SupervisorPersonNumber") then "Colleague assigned as Supervisor does not exist in Kronos (OR) Colleague assigned as Supervisor exists in Kronos but does not have a manager license assigned to them (OR) Colleague assigned as Supervisor exists in Kronos but is Terminated."
+#  elif Text.Contains([DESCRIPTION], "WFP-01270 The information in the bean is not valid.  Detailed errors should be wrapped within this exception.WFP-01147 The value for the property is not valid - Name: PayRuleName") then "No grade field provided in source file from HCM"
+#  elif Text.Contains([DESCRIPTION], "WFP-01270 The information in the bean is not valid.  Detailed errors should be wrapped within this exception.WFP-77605 A change in the person's AccrualProfile assignment") then "Multiple records sent from HCM including Terminations with no leaving reason. (OR) Change record sent with original hire date for terminated colleague. (OR) NEW HIRE record sent for colleague that is Terminated in Kronos."
+#  elif Text.Contains([DESCRIPTION], "WFP-01577 Cannot assign a generic data access profile to an employee without a manager license:") then "Colleague not having a Manager License."
+#  elif Text.Contains([DESCRIPTION], "Schedule Rule Override") then "Scheduler Error"
+#  elif Text.Contains([DESCRIPTION], "WFP-01270 The information in the bean is not valid.  Detailed errors should be wrapped within this exception.WFP-00773 The employee does not have Workforce Scheduler license to do this operation - name") and Text.Contains([TRANSACTION TYPE],"RuleSetEmployeeAssign") then "Cascade Error Related to Above"
+#  elif Text.Contains([DESCRIPTION], "The employee submitted for processing has no license") and Text.Contains([TRANSACTION TYPE], "WATPointBalanceReset") then "Cascade Error Related to Above."
+#  elif Text.Contains([DESCRIPTION], "WFP-01280 This field does not allow a null value.    Field Name: User Name.") then "Change record sent for existing user who did not have user name set - interface base assumption is that all existing colleague will have a user name set (user name is not sent for change events)"
+#  elif Text.Contains([TRANSACTION TYPE], "PersonCertificationAssign") then "-"
+#  elif Text.Contains([DESCRIPTION], "WFP-00566 The hire date occurs before the birth date") then "Hired date should be corrected"
+#  elif Text.Contains([DESCRIPTION], "WFP-00701 The birth date occurs today or after today's date") then "Birth date should be corrected"
+#  elif Text.Contains([DESCRIPTION], "WFP-01270 The information in the bean is not valid.  Detailed errors should be wrapped within this exception.WFP-89781 The person's Hire Date cannot be greater than Employment Term Start Date") then "Check status of Hire date and Start date"
+#  elif Text.Contains([DESCRIPTION], "WFP-01270 The information in the bean is not valid.  Detailed errors should be wrapped within this exception.WFP-01147 The value for the property is not valid - Name: AccessProfileName") and Text.Contains([DESCRIPTION], "WFP-01147 The value for the property is not valid") then "Invalid access profile"
+#  elif Text.Contains([DESCRIPTION], "WFP-01270 The information in the bean is not valid.  Detailed errors should be wrapped within this exception.WFP-01147 The value for the property is not valid - Name: ForecastMapProfile") then "The colleague store type must be provided"
+#  else "Check the error")
+
+
+
+# = Table.AddColumn(#"Summary Error Conditions", "Team & Actions",
+# each if [Summary] = "Passed" then "Passed"
+# elif [Summary] = "Employee Group Error" then "Srv_Integration Account."
+# elif Text.StartsWith([Summary], "Cascade Error") then "Root cause to be resolved by mentioned team."
+# elif Text.StartsWith([Summary], "Typically related to the FUT interface, the usual cause of the error") then "LabourBAU to Review/ Action."
+# elif Text.StartsWith([Summary], "Attempt to change hire date for a colleague who has already been signed off (OR) Reverse Termination") then "LabourBAU to Review/ Action."
+# elif Text.StartsWith([Summary], "Multiple instances of the same colleague exist") then "LabourBAU to Review/ Action."
+# elif Text.StartsWith([Summary], "Typically this will be a cascade error, in that it will be an error generated because of another root error cause (OR) Can occur when an attempt has been made to process rehire event for colleague who has already been rehired (OR) Multiple records sent for single colleague in source file, this is not permitted for CDI") then "LabourBAU to Review/ Action."
+# elif Text.StartsWith([Summary], "Multiple records for the same colleague in the same source file - not permitted by CDI") then "LabourBAU to Review/ Action."
+# elif Text.StartsWith([Summary], "Other user in Person record making edits at the time") then "LabourBAU to amend the record."
+# elif Text.StartsWith([Summary], "This can be a cascade error") then "Root cause to be resolved by mentioned team."
+# elif Text.Contains([Summary], "Cascade - Related to Above Error.") then "Root cause to be resolved by mentioned team."
+# elif Text.Contains([Summary], "Hire Date Issue.") then "LabourBAU to carry out the Workaround."
+# elif [Summary] = "USERNAME Issue." then "LabourBAU to action."
+# elif [Summary] = "Scheduler Issue." then "LabourBAU to action."
+# elif [Summary] = "Scheduler Issue due to above errors." then "Root cause to be resolved by mentioned team."
+# elif [Summary] = "Wrong User Name on existing colleague" then "LabourBAU to Amend."
+# elif [Summary] = "Colleague Failed before" then "Root cause to be resolved by mentioned team."
+# elif [Summary] = "Typically this will be a cascade error, in that it will be an error generated because of another root error cause." then "Root cause to be resolved by mentioned team."
+# elif [Summary] = "Invalid character in colleague, to be  update in HCM." then "HRS to Action."
+# elif Text.StartsWith([Summary], "The job assigned to this colleague is a Management job but the department provided is not Management. (OR) This location is Convenience and") then "HRS to Amend the Colleague record in HCM."
+# elif Text.StartsWith([Summary], "Colleague assigned as Supervisor does not exist in Kronos (OR) Colleague assigned as Supervisor exists") then "HRS to check the Supervisor record of the colleague."
+# elif [Summary] = "No grade field provided in source file from HCM" then "HRS to amend the Colleague detail."
+# elif Text.StartsWith([Summary], "Multiple records sent from HCM including Terminations with no leaving reason. (OR) Change record sent with original hire") then "LabourBAU to Review & Update."
+# elif [Summary] = "Colleague not having a Manager License." then "HRS to review."
+# elif [Summary] = "Scheduler Error" then "LabourBAU to review and Update."
+# elif [Summary] = "Cascade Error Related to Above" then "Root cause to be resolved by mentioned team."
+# elif Text.StartsWith([Summary], "Change record sent for existing user who did not have user name set") then "LabourBAU to review"
+# elif [Summary] = "-" then "No Action Required."
+# elif [Summary] = "LabourBAU to Analyze the issue & Update" then "LabourBAU to review & update."
+# elif [Summary] = "Hired date should be corrected" then "HRS to take action."
+# elif [Summary] = "Birth date should be corrected" then "HRS to take action."
+# elif [Summary] = "Check status of Hire date and Start date" then "LabourBAU to review"
+# elif [Summary] = "Invalid access profile" then "HRS to review."
+# elif [Summary] = "The colleague store type must be provided" then "HRS to review."
+# else " Review and Assign to HRS or Labour")
+
+# = Table.ReorderColumns(#"Day & Night Conditions",{"COLLEAGUE ID", "ERROR NUMBER", "DESCRIPTION","Interface Date", "Interface Time", "FIELD NAME ERROR", "ID", "TRANSACTION TYPE", "Day & Night", "Team & Actions"})
+
