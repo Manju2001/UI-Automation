@@ -1,40 +1,23 @@
 <!DOCTYPE html>
-<html>
-  <head>
-     <meta charset="utf-8">
-    <title>Hello World!</title>
-    <link rel="stylesheet" href="styles.css" />
-  </head>
-  <body>
-     <header>
-       <p class="sains"> <b>SAINSBURY'S</b></p>
-     </header>
-     <div class="mainContent">
-        <h1>CDI-Transaction Assistent splitter</h1>
-        <p>Upload your Excel file below:</p>
-        <form action="/split" method="post" enctype="multipart/form-data">
-            <input type="file" name="excelFile" accept=".xlsx">
-            <button type="submit">Split File</button>
-        </form>
-     </div>
-    
-     <footer>
-       <div class="footerContent">
-         <div class="footer-links" id="firstFlex"
-           </div>
-         <a href="part1.xlsx" download>Labour</a>
-        <a href="part2.xlsx" download>HRs</a>
-         
-         
-         
-       </div>
-       
-     </footer>
-  </body>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CSV File Splitter</title>
+<link rel="stylesheet" type= "text/css" href="{{ url_for('static', filename='styles/styles.css') }}">
+</head>
+<body>
+<div class="title1"><b>SAINSBURY'S</div>
+<div class="container">
+<div class="card">
+<h1 class="title">CDI Retail File Splitter</h1>
+<div class="upload-section">
+    <label for="csvFileInput">Upload a CSV file:</label>
+    <input type="file" id="csvFileInput" accept=".csv">
+</div>
+<button class="btn" onclick="splitCSV()"><b>Split</b></button>
+</div>
+<div class="blob"></div>
+</div>
+</body>
 </html>
-
-
-
-
-
-
